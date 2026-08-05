@@ -1,4 +1,5 @@
-"""Thin wrapper around the Ollama /api/chat endpoint with JSON-schema-checked,
+"""Thin wrapper around the LLM chat endpoint (Ollama /api/chat or OpenAI's
+/chat/completions, per config.LLM_PROVIDER) with JSON-schema-checked,
 retrying structured output. Every agent goes through this so LLM calls are
 uniformly traced and validated before their output is trusted.
 """
@@ -66,6 +67,12 @@ def call_structured(
 
 
 def _chat(messages: list, model: str) -> str:
+    if config.LLM_PROVIDER == "openai":
+        return _chat_openai(messages, model)
+    return _chat_ollama(messages, model)
+
+
+def _chat_ollama(messages: list, model: str) -> str:
     resp = requests.post(
         f"{config.OLLAMA_BASE_URL}/api/chat",
         json={
@@ -79,6 +86,22 @@ def _chat(messages: list, model: str) -> str:
     )
     resp.raise_for_status()
     return resp.json()["message"]["content"]
+
+
+def _chat_openai(messages: list, model: str) -> str:
+    resp = requests.post(
+        f"{config.OPENAI_BASE_URL}/chat/completions",
+        headers={"Authorization": f"Bearer {config.OPENAI_API_KEY}"},
+        json={
+            "model": model,
+            "messages": messages,
+            "temperature": config.LLM_TEMPERATURE,
+            "response_format": {"type": "json_object"},
+        },
+        timeout=config.OLLAMA_TIMEOUT_SECONDS,
+    )
+    resp.raise_for_status()
+    return resp.json()["choices"][0]["message"]["content"]
 
 
 def _extract_json(text: str) -> dict:

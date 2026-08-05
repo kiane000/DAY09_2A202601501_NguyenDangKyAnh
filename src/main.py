@@ -53,13 +53,20 @@ def write_metadata(total: int, ok: int, failed: int, elapsed_seconds: float) -> 
         "model_name": config.MODEL_NAME,
         "model_parameter_size": config.MODEL_PARAMETER_SIZE,
         "model_quantization": config.MODEL_QUANTIZATION,
-        "framework": "Custom hand-rolled Python orchestrator (no agent framework) calling Ollama",
+        "framework": f"Custom hand-rolled Python orchestrator (no agent framework) calling "
+                     f"{config.LLM_PROVIDER}",
         "runtime": {
-            "engine": "Ollama",
-            "ollama_base_url": config.OLLAMA_BASE_URL,
+            "engine": config.LLM_PROVIDER,
+            "base_url": config.OPENAI_BASE_URL if config.LLM_PROVIDER == "openai"
+            else config.OLLAMA_BASE_URL,
             "python_version": platform.python_version(),
             "os": platform.platform(),
         },
+        "notes": (
+            "gpt-4o-mini dùng theo yêu cầu người dùng; OpenAI không công bố "
+            "parameter count nên không thể xác nhận model có đạt giới hạn ≤10B "
+            "params của đề bài hay không — xem model_parameter_size."
+        ) if config.LLM_PROVIDER == "openai" else "",
         "agents": [
             "coordinator",
             "order_seller_agent",
