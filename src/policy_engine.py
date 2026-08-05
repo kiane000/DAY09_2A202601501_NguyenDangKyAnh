@@ -66,6 +66,39 @@ def _round2(value: float) -> float:
     return round(value + 1e-9, 2)
 
 
+def is_delivered_late(order) -> bool:
+    """True if the order was delivered to the customer after the estimated
+    delivery date. Exposed so agents can be given this as a precomputed fact
+    instead of comparing raw timestamps themselves (LLMs are unreliable at
+    date/number comparison — see architecture.md)."""
+    return (
+        order is not None
+        and order.order_delivered_customer_date is not None
+        and order.order_estimated_delivery_date is not None
+        and order.order_delivered_customer_date > order.order_estimated_delivery_date
+    )
+
+
+def violating_seller_ids(order, items) -> list:
+    """Sellers whose item(s) were handed to the carrier after their own
+    shipping_limit_date. Exposed for the same reason as `is_delivered_late`."""
+    if order is None or order.order_delivered_carrier_date is None:
+        return []
+    carrier_date = order.order_delivered_carrier_date
+    return sorted(
+        {
+            item.seller_id
+            for item in items
+            if item.shipping_limit_date is not None and carrier_date > item.shipping_limit_date
+        }
+    )
+
+
+def is_payment_reconciled(payment_total: float, merch_total: float,
+                           tolerance: float = RECONCILE_TOLERANCE_BRL) -> bool:
+    return abs(payment_total - merch_total) <= tolerance
+
+
 def apply_policy(facts: OrderFacts) -> PolicyDecision:
     order = facts.order
     item_total = _round2(sum(i.price for i in facts.items))
@@ -112,23 +145,10 @@ def apply_policy(facts: OrderFacts) -> PolicyDecision:
             rationale="order_status=unavailable và tổng payment > 0.",
         )
 
-    delivered_late = (
-        order.order_delivered_customer_date is not None
-        and order.order_estimated_delivery_date is not None
-        and order.order_delivered_customer_date > order.order_estimated_delivery_date
-    )
+    delivered_late = is_delivered_late(order)
 
     if delivered_late and facts.items:
-        carrier_date = order.order_delivered_carrier_date
-        violating_sellers = sorted(
-            {
-                item.seller_id
-                for item in facts.items
-                if carrier_date is not None
-                and item.shipping_limit_date is not None
-                and carrier_date > item.shipping_limit_date
-            }
-        )
+        violating_sellers = violating_seller_ids(order, facts.items)
 
         if violating_sellers:
             # Rule 3: late_delivery_seller
@@ -160,7 +180,7 @@ def apply_policy(facts: OrderFacts) -> PolicyDecision:
             ),
         )
 
-    payment_reconciled = abs(payment_total - merch_total) <= RECONCILE_TOLERANCE_BRL
+    payment_reconciled = is_payment_reconciled(payment_total, merch_total)
 
     # Rule 5: valid_split_payment
     if len(facts.payments) >= 2 and payment_reconciled:

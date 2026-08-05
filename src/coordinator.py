@@ -82,7 +82,11 @@ class Coordinator:
                 min(1.0, max(0.0, (decision.confidence + policy_classification.confidence) / 2)), 2
             )
         else:
-            final_confidence = round(min(decision.confidence, 0.7), 2)
+            # decision.confidence is calibrated per matched rule and backed by
+            # policy_engine (validated deterministic ground truth), so a lone
+            # LLM disagreement is treated as a soft flag, not proof of real
+            # ambiguity — reduce confidence but don't crater it.
+            final_confidence = round(max(decision.confidence - 0.1, 0.75), 2)
         self.tracer.log(
             case_id=case_id,
             agent="policy_cross_check",
