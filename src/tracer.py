@@ -11,6 +11,7 @@ from pathlib import Path
 class Tracer:
     def __init__(self, path: Path):
         self.path = Path(path)
+        self.path.parent.mkdir(parents=True, exist_ok=True)
         self.path.write_text("", encoding="utf-8")  # fresh file each run
 
     def log(self, **fields):

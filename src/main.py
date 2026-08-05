@@ -80,6 +80,7 @@ def write_metadata(total: int, ok: int, failed: int, elapsed_seconds: float) -> 
                          "elapsed_seconds": round(elapsed_seconds, 1)},
         "generated_at": datetime.now(timezone.utc).isoformat(),
     }
+    config.METADATA_PATH.parent.mkdir(parents=True, exist_ok=True)
     config.METADATA_PATH.write_text(
         json.dumps(metadata, ensure_ascii=False, indent=2), encoding="utf-8"
     )

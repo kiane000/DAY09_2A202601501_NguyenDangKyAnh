@@ -9,8 +9,9 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT_DIR / "data"
 INPUT_DIR = ROOT_DIR / "input"
 OUTPUT_DIR = ROOT_DIR / "output"
-TRACE_PATH = ROOT_DIR / "trace.jsonl"
-METADATA_PATH = ROOT_DIR / "metadata.json"
+LOGGING_DIR = ROOT_DIR / "logging"
+TRACE_PATH = LOGGING_DIR / "trace.jsonl"
+METADATA_PATH = LOGGING_DIR / "metadata.json"
 
 # Model name is declared here in source code per lab rule #4 (not in .env).
 # NOTE: gpt-4o-mini was chosen by explicit user request. OpenAI does not

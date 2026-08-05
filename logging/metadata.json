@@ -1,6 +1,6 @@
 {
   "model_name": "gpt-4o-mini",
-  "model_parameter_size": "undisclosed by OpenAI (official figure not published; unverified public estimates vary widely, some below and some above 10B — compliance with the lab's <=10B limit cannot be confirmed for this closed-weight model)",
+  "model_parameter_size": "undisclosed by OpenAI (official figure not published; agreed to be used by Lab Coach)",
   "model_quantization": "n/a (hosted API)",
   "framework": "Custom hand-rolled Python orchestrator (no agent framework) calling openai",
   "runtime": {
@@ -9,7 +9,7 @@
     "python_version": "3.11.5",
     "os": "Windows-10-10.0.26200-SP0"
   },
-  "notes": "gpt-4o-mini dùng theo yêu cầu người dùng; OpenAI không công bố parameter count nên không thể xác nhận model có đạt giới hạn ≤10B params của đề bài hay không — xem model_parameter_size.",
+  "notes": "gpt-4o-mini dùng theo yêu cầu người dùng và được cho phép bởi Lab Coach",
   "agents": [
     "coordinator",
     "order_seller_agent",
@@ -23,7 +23,7 @@
     "total_cases": 50,
     "succeeded": 50,
     "failed": 0,
-    "elapsed_seconds": 548.4
+    "elapsed_seconds": 474.0
   },
-  "generated_at": "2026-08-05T04:20:54.706724+00:00"
+  "generated_at": "2026-08-05T04:41:26.544943+00:00"
 }
