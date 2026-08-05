@@ -20,7 +20,11 @@ METADATA_PATH = ROOT_DIR / "metadata.json"
 # here (and in metadata.json) instead of fabricating a parameter size.
 LLM_PROVIDER = "openai"  # "openai" or "ollama"
 MODEL_NAME = "gpt-4o-mini"
-MODEL_PARAMETER_SIZE = "undisclosed by OpenAI (public estimates - 8B - place it well above the lab's <=10B limit)"
+MODEL_PARAMETER_SIZE = (
+    "undisclosed by OpenAI (official figure not published; unverified public "
+    "estimates vary widely, some below and some above 10B — compliance with "
+    "the lab's <=10B limit cannot be confirmed for this closed-weight model)"
+)
 MODEL_QUANTIZATION = "n/a (hosted API)"
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
